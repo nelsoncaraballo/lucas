@@ -435,6 +435,7 @@ class _SplashState extends State<Splash> {
   }
 
   Future<void> rebuildDatabase() async {
+    // TODO FP ACA TOCA DESCOMENTAR TODO LOS IMTEMS
     String strMsg = "";
 
     strMsg = await L.item('loading images');

@@ -123,7 +123,10 @@ class _WFolderState extends State<WFolder> {
 
     if (mFolder.useAsset == 0) {
       File f = File('${Helper.appDirectory}/${mFolder.localFileName}');
+     //File f = File("/data/data/com.lucaseducation.apps.lucas/app_flutter/lucas/scaled_9788c467-0788-4566-8a4d-9795fc4d72b27031356042873533669.jpg");
+     // File f = File(mFolder.fileName);
       localImage = Image.file(f);
+
     }
 
     return Container(

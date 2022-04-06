@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'package:lucas/database/Database.dart';
@@ -183,6 +184,21 @@ class MFolder extends MObject {
         "minLevelToShow": minLevelToShow,
         "user": user,
       };
+
+  Map<String, dynamic> toBDMap2() => {
+    "id": id,
+    "fileName": fileName,
+    "categoryId": categoryId,
+    "isVisible": isVisible,
+    "isUnderstood": isUnderstood,
+    "userCreated": userCreated,
+    "isAvailable": isAvailable,
+    "useAsset": useAsset,
+    "localFileName": localFileName,
+    "backgroundColor": backgroundColor,
+    "minLevelToShow": minLevelToShow,
+    "user": user,
+  };
 
   static String createTableScript = "CREATE TABLE IF NOT EXISTS $TableName ("
       "id INTEGER PRIMARY KEY,"
@@ -432,7 +448,7 @@ class MFolder extends MObject {
 
   static Future<void> update(MFolder entity) async {
     final db = await DBProvider.db.database;
-    await db.update("$TableName", entity.toBDMap(),
+    await db.update("$TableName", entity.toBDMap2(),
         where: "id = ?", whereArgs: [entity.id]);
 
     clearMemoryTables();
@@ -678,6 +694,7 @@ class MFolder extends MObject {
     await MFolder.deleteAll();
 
     // await MFolder.populateFromJson(false);
+
     await MFolder.populateFromJsonImport();
   }
 
@@ -691,12 +708,11 @@ class MFolder extends MObject {
   }
 
   static Future<int> maxId() async {
-    final db = await DBProvider.db.database;
+    int i = UniqueKey().hashCode;
 
-    var table = await db.rawQuery("SELECT MAX(id)+1 as id FROM $TableName");
-    int maxId = table.first["id"] ?? 1;
+    return i ;
 
-    return maxId;
+
   }
 
   static updateBackgroundColor() async {
@@ -770,4 +786,26 @@ class MFolder extends MObject {
     webResponse = WebResponse(message: "", operation: true);
     return webResponse;
   }
+
+  factory MFolder.jsonToFolder(Map<String, dynamic> json) => MFolder(
+    id: json["idInDevice"],
+    parentFolderId: json["parentFolderId"],
+    fileName: json["fileName"]??'',
+    categoryId: json["categoryId"]??-1,
+    textToShow: json["textToShow"]??'',
+    textToSay: json["textToSay"]??'',
+    isVisible: json["isVisible"]??1,
+    isUnderstood: json["isUnderstood"]??1,
+    backgroundColor: json["backgroundColor"]??'',
+    //minColumn: json["minColumn"],
+    //maxColumn: json["maxColumn"],
+    minLevelToShow: json["minLevelToShow"]??1,
+    userCreated: json["userCreated"]??1,
+    isAvailable: json["isAvailable"]??1,
+    useAsset: json["useAsset"]??1,
+    localFileName: json["localFileName"]??'',
+    user: json["user"]??'',
+
+
+  );
 }

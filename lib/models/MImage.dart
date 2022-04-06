@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 //import 'dart:ui';
 //import 'package:flutter/widgets.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'package:lucas/database/Database.dart';
@@ -543,16 +544,14 @@ class MImage extends MObject {
     await MImage.deleteAll();
 
     //await MImage.populateFromJson(false);
-    await MImage.populateFromJsonImport();
+    // TODO FP DESCOMENTAR
+    //await MImage.populateFromJsonImport();
   }
 
   static Future<int> maxId() async {
-    final db = await DBProvider.db.database;
+    int i = UniqueKey().hashCode;
 
-    var table = await db.rawQuery("SELECT MAX(id)+1 as id FROM $TableName");
-    int maxId = table.first["id"] ?? 1;
-
-    return maxId;
+    return i ;
   }
 
   static updateBackgroundColor() async {
@@ -626,4 +625,26 @@ class MImage extends MObject {
     webResponse = WebResponse(message: "", operation: true);
     return webResponse;
   }
+
+
+  factory MImage.jsonToImage(Map<String, dynamic> json) => MImage(
+    id: json["idInDevice"],
+    fileName: json["fileName"],
+    categoryId: json["categoryId"]??-1,
+    textToShow: json["textToShow"]??'',
+    textToSay: json["textToSay"]??'',
+    relationId: json["relationId"]??-1,
+    isVisible: json["isVisible"],
+    isUnderstood: json["isUnderstood"],
+    backgroundColor: json["backgroundColor"],
+    minColumn: json["minColumn"]??1,
+    maxColumn: json["maxColumn"]??1,
+    minLevelToShow: json["minLevelToShow"]??1,
+    useAsset: json["useAsset"]??1,
+    localFileName: json["localFileName"],
+    userCreated: json["userCreated"]??1,
+    isAvailable: json["isAvailable"]??1,
+    user: json["user"]??''
+        '',
+  );
 }

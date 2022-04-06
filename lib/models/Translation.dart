@@ -321,8 +321,9 @@ class Translation {
     //   await Translation.populateFromJson(false, MSound.TableName,'sounds', language.languageCode);
     //   await Translation.populateFromJson(false, MVideo.TableName,'videos', language.languageCode);
     // }
+    //TODO FP DESCOMENTAR
 
-    await Translation.populateFromJsonImport();
+   //await Translation.populateFromJsonImport();
   }
 
   static Future<void> populateFromJsonImport() async {

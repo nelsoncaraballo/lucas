@@ -611,7 +611,8 @@ class MSound extends MObject {
     await MSound.deleteAll();
 
     //await MSound.populateFromJson(false);
-    await MSound.populateFromJsonImport();
+    //TODO FP DESCOMENTAR
+    //await MSound.populateFromJsonImport();
   }
 
   static Future<int> maxId() async {

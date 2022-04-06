@@ -38,7 +38,7 @@ class DBProvider {
 
     return await openDatabase(
       path,
-      version: 5,
+      version: 6,
       onOpen: (db) {},
       onCreate: (Database db, int version) async {
         db.rawQuery(Translation.createTableScript);
@@ -48,6 +48,7 @@ class DBProvider {
         db.rawQuery(MRelation.createTableScript);
         db.rawQuery(MEmpty.createTableScript);
       },
+
       onUpgrade: (Database db, int oldVersion, int newVersion) async {
         // if (newVersion == 5) {
         //   await Category.dropTableIfExists();

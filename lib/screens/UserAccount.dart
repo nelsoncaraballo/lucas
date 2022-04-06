@@ -23,6 +23,8 @@ import 'package:lucas/models/MStory.dart';
 import 'package:lucas/models/MVideo.dart';
 import 'package:lucas/models/StoryObject.dart';
 import 'package:lucas/models/Translation.dart';
+import 'package:lucas/module_backup_reestore/helper_backup.dart';
+import 'package:lucas/module_backup_reestore/helper_web_service.dart';
 import 'package:lucas/screens/BottomNavigationOptions.dart';
 //import 'package:property_change_notifier/property_change_notifier.dart';
 
@@ -876,11 +878,15 @@ class _UserAccountState extends State<UserAccount> {
               //   fontWeight: FontWeight.bold,
               // ),
             ),
-            value: int.parse(v["folderIdInDevice"]),
+            value: int.parse(v["folderIdInDevice"].toString()),
           ),
         );
       }
     }
+    if(items.isNotEmpty&& selectedFolderToRestore==-1){
+      selectedFolderToRestore=  items.first.value;
+    }
+
 
     List<DropdownMenuItem<int>> localItems = <DropdownMenuItem<int>>[];
     if (localFolders != null) {
@@ -1011,8 +1017,8 @@ class _UserAccountState extends State<UserAccount> {
                         MaterialButton(
                           color: Theme.of(context).primaryColor,
                           onPressed: () async {
-                            await replaceFolder(userEmailNameToRestore,
-                                selectedFolderToRestore, selectedLocalFolder);
+                            HelperBackUp.reestore(userEmailNameToRestore, selectedFolderToRestore, selectedLocalFolder);
+                          //  await replaceFolder(userEmailNameToRestore, selectedFolderToRestore, selectedLocalFolder);
                           },
                           child: Text(translations['replace folder']),
                         ),
@@ -1479,12 +1485,14 @@ class _UserAccountState extends State<UserAccount> {
       );
       return;
     }
-
+   await HelperBackUp.backup(userEmail, userName);
+    bool hasErrors = false;
+/*
     setState(() {
       isBackingup = true;
     });
 
-    bool hasErrors = false;
+
     WebResponse webResponse;
 
     setState(() {
@@ -1744,7 +1752,7 @@ class _UserAccountState extends State<UserAccount> {
       isBackingup = false;
       status = "";
     });
-
+*/
     if (!hasErrors) {
       showSnackbar(translations['operation completed successfully'],
           Duration(milliseconds: 900));
@@ -1808,10 +1816,14 @@ class _UserAccountState extends State<UserAccount> {
       await showWebResponseError(
           "Loading folder list", webResponseDynamic.content);
     } else {
+      dynamic folderRemoto= await  HelperWebService(userEmailNameToRestore, userName).listRemoteFolders();
       setState(() {
-        folderList = webResponseDynamic.content;
+        folderList = folderRemoto;
+
       });
     }
+  //  await itmsFoldersRemotos();
+
 
     setState(() {
       isRestoring = false;
@@ -1823,6 +1835,8 @@ class _UserAccountState extends State<UserAccount> {
     //       Duration(milliseconds: 900));
     // }
   }
+
+
 
   static Future<WebResponseDynamic> listFoldersInRepository(
       String userEmailNameToRestore) async {

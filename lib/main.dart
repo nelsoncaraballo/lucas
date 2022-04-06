@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:lucas/screens/Splash.dart';
 
@@ -9,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'helpers/property_change_notifier/property_change_provider.dart';
 import 'models/LucasState.dart';
+import 'module_backup_reestore/helper_file.dart';
 
 //void main() => runApp(MyApp());
 // void main() => runApp(
@@ -17,9 +19,12 @@ import 'models/LucasState.dart';
 //         child: MyApp(),
 //       ),
 //     );
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  await HelPerFile.crearDirectorioFinal();
   SharedPreferences.getInstance().then((prefs) {
+
     var darkModeOn = prefs.getBool('darkMode') ?? false;
     var currentColor = prefs.getString('currentColor') ?? 'blue';
     //L.loadWords();

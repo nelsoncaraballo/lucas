@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:lucas/helpers/LocalPreferences.dart';
 import 'package:lucas/models/MEmpty.dart';
@@ -810,16 +811,14 @@ class MRelation {
 
     await MRelation.deleteAll();
     // await MRelation.populateFromJson(false);
-    await MRelation.populateFromJsonImport();
+    //TODO FP DESCOMENTAR
+   //await MRelation.populateFromJsonImport();
   }
 
   static Future<int> maxId() async {
-    final db = await DBProvider.db.database;
+    int i = UniqueKey().hashCode;
 
-    var table = await db.rawQuery("SELECT MAX(id)+1 as id FROM $TableName");
-    int maxId = await table.first["id"] ?? 1;
-
-    return maxId;
+    return i ;
   }
 
   static Future<List<MObject>> moveItem(MObject mDraggedObject,
@@ -946,4 +945,18 @@ class MRelation {
 
     return await Helper.invokeWebService(json);
   }
+
+
+  factory MRelation.jsonToRelation(Map<String, dynamic> json) => MRelation(
+    id: json["idInDevice"],
+    parentFolderId: json["parentFolderId"],
+    cardType: json["cardType"],
+    cardFolderId: json["cardFolderId"],
+    cardImageId: json["cardImageId"],
+    userCreated: json["userCreated"]??'',
+    visibleIndex: json["visibleIndex"]??'',
+    gridColumns: json["gridColumns"]??'',
+    user: json["user"]??'',
+
+  );
 }

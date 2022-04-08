@@ -30,15 +30,19 @@ class HelperWebService {
 
   HelperWebService(this.userEmail, this.userName);
 
-  Future<void> backUpFolders(HelperFirebase firebase) async {
+  Future<void> backUpFolders(HelperFirebase firebase,Function actualizarEstado) async {
     List<MFolder> folders = await MFolder.getAll();
 
 
     // se monta la imagen a firebase y se actualiza el link
     for (int i = 0; i < folders.length; i++) {
-      String link = await firebase.uploadFile(folders[i]);
-      folders[i].fileName = link;
-      HelperToast.showToast("se monto la imagen de ${folders[i].textToShow}");
+      if(folders[i].useAsset==0){
+        actualizarEstado("uploading the image of ${folders[i].textToShow}");
+        String link = await firebase.uploadFile(folders[i]);
+        folders[i].fileName = link;
+      }
+      //HelperToast.showToast("se monto la imagen de ${folders[i].textToShow}");
+
     }
 
     String json = jsonEncode({
@@ -51,14 +55,17 @@ class HelperWebService {
     HelperToast.showToast(res);
   }
 
-   Future<void> backUpImages(HelperFirebase firebase) async {
+   Future<void> backUpImages(HelperFirebase firebase,Function actualizarEstado) async {
     List<MImage> images = await MImage.getAll();
 
     // se monta la imagen a firebase y se actualiza el link
     for (int i = 0; i < images.length; i++) {
+      if(images[i].useAsset==0){
+      actualizarEstado("uploading the image of ${images[i].textToShow}");
       String link = await firebase.uploadFile(images[i]);
       images[i].fileName = link;
-      HelperToast.showToast("se monto la imagen de ${images[i].textToShow}");
+      }
+      //HelperToast.showToast("se monto la imagen de ${images[i].textToShow}");
     }
 
     String json = jsonEncode({
@@ -71,14 +78,42 @@ class HelperWebService {
     String res = await invokeWebService(json, "backup/v1/uploadMimageList");
     HelperToast.showToast(res);
   }
-   Future<void> backUpRelation() async {
+   Future<void> backUpRelation(Function actualizarEstado) async {
+    bool isDelete;
     List<MRelation> relations = await MRelation.getAll();
+List<MRelation> relationsTemporal  = [];
+    actualizarEstado("Send relations");
+    int count =0 ;
+    for(int i =0; i<relations.length;i+=1000){
+      if(i==0){
+        isDelete= true ;
+
+      }else{
+        isDelete= false ;
+        actualizarEstado("relations sent $i of ${relations.length}");
+      }
+      if((relations.length-i)>1000){
+        relationsTemporal=  relations.getRange(i, i+1000).toList();
+      }else{
+        relationsTemporal= relations.getRange(i, relations.length-1).toList();
+
+      }
+      await sendRelations(relationsTemporal, isDelete);
 
 
-    // se monta la imagen a firebase y se actualiza el link
+    }
 
 
+
+     // se monta la imagen a firebase y se actualiza el link
+
+
+
+  }
+
+  Future<void> sendRelations(List<MRelation> relations,bool isDelete) async {
     String json = jsonEncode({
+      "isDelete":isDelete,
       "email": userEmail,
       "name": userName,
       "operation": "upload relations",
@@ -86,22 +121,56 @@ class HelperWebService {
     });
     String res = await invokeWebService(json, "backup/v1/uploadMRelationList");
     HelperToast.showToast(res);
+
+
+
+
   }
 
-   Future<void> backUpTraslations() async {
+
+
+  Future<void> backUpTraslations(Function actualizarEstado) async {
+    bool isDelete;
     List<Translation> traslations = await Translation.getAll();
+    List<Translation> traslationsTemporal  = await Translation.getAll();
+    actualizarEstado("Send traslations");
+    int count =0 ;
+    for(int i =0; i<traslations.length;i+=1000){
+      if(i==0){
+        isDelete= true ;
+
+      }else{
+        isDelete= false ;
+        actualizarEstado("translations sent $i of ${traslations.length}");
+      }
+      if((traslations.length-i)>1000){
+        traslationsTemporal=  traslations.getRange(i, i+1000).toList();
+      }else{
+        traslationsTemporal= traslations.getRange(i, traslations.length-1).toList();
+
+      }
+     await sendTraslations(traslationsTemporal, isDelete);
+
+
+    }
 
 
     // se monta la imagen a firebase y se actualiza el link
 
 
+
+  }
+
+  Future<void> sendTraslations(List<Translation> traslations,bool isDelete) async {
     String json = jsonEncode({
+      "isDelete":isDelete,
       "email": userEmail,
       "name": userName,
       "operation": "upload translation",
       "objects": traslations,
     });
     String res = await invokeWebService(json, "backup/v1/uploadMTranslationList");
+
     HelperToast.showToast(res);
   }
 
@@ -201,36 +270,47 @@ class HelperWebService {
 
 
 
-   Future<void> replaceFolder(String userEmailNameToRestore, int selectedFolderToRestore, int selectedLocalFolder) async {
+   Future<void> replaceFolder(String userEmailNameToRestore, int selectedFolderToRestore, int selectedLocalFolder,Function actualizarEstado) async {
+     MFolder remoteFolder = await MFolder.getByID(selectedFolderToRestore);
 
+    if(remoteFolder!=null ){
+        HelperToast.showToast("the folder ${remoteFolder.id} is already in the mobile");
+        return;
+    }
     MFolder localFolder = await MFolder.getByID(selectedLocalFolder);
     if (localFolder == null) {
       if(selectedLocalFolder==-1){
         localFolder= MFolder();
       }else{
-        HelperToast.showToast("error no se encontro el folder local ");
+          HelperToast.showToast("error could not find local folder");
         return;
       }
 
 
     }
 
+      actualizarEstado("restoring translations");
 
-     List<Translation>  remoteTranslations=await findARemoteTraslations(localFolder, selectedFolderToRestore);
+    List<Translation>  remoteTranslations=await findARemoteTraslations(localFolder, selectedFolderToRestore);
+    actualizarEstado("restoring Relations");
      List<MRelation> remoteRelations= await findRemoteRelations(selectedFolderToRestore);
 
      for (MRelation r in remoteRelations){
        MRelation.createWithID(r);
      }
      for (Translation t in remoteTranslations){
-      await Translation.create(t);
+      await Translation.createWithID(t);
      }
 
     List<MObject> objectsToDelete = await MRelation.getObjectsInFolder(6, selectedLocalFolder);
 
+     actualizarEstado("restoring Images");
     await findRemoteImages(selectedFolderToRestore: selectedFolderToRestore, remoteTranslations: remoteTranslations, localFolder: localFolder, remoteRelations: remoteRelations);
+
+    actualizarEstado("restoring Folders");
     await findRemoteFolders(selectedFolderToRestore: selectedFolderToRestore, remoteTranslations: remoteTranslations, localFolder: localFolder, remoteRelations: remoteRelations);
 
+    actualizarEstado("restoring complete");
 
 
 
@@ -279,7 +359,7 @@ class HelperWebService {
 
     showSnackbar("operation completed successfully",
         Duration(milliseconds: 900));*/
-    HelperToast.showToast("tarea completada");
+    HelperToast.showToast("task completed");
   }
 
 
@@ -312,24 +392,10 @@ class HelperWebService {
 
 
     // add translation
-    for (var t in remoteObjectTranslations) {
-      if (t.tableName == MImage.TableName && t.itemId== image.id) {
-         Translation entity = Translation(
-          tableName: MImage.TableName,
-          itemId: mImage.id,
-          language: t.language,
-          textToShow: t.textToShow,
-          textToSay: t.textToSay,
-          user: ''
-        );
 
-        await Translation.create(entity);
-      }
-    }
 
     // Add relation
-    int visibleIndex = -1;
-    int userCreated = 1;
+
 
 
 
@@ -370,7 +436,7 @@ class HelperWebService {
       try {
         await MFolder.createWithID(nFolder);
       }catch(e){
-      HelperToast.showToast("error folde id ${nFolder.id} " );
+     // HelperToast.showToast("error folde id ${nFolder.id} " );
        print(e.toString());
        return;
       }

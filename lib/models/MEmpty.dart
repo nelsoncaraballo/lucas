@@ -337,7 +337,7 @@ class MEmpty extends MObject {
 
     //await MEmpty.populateFromJson(false);
     //TODO FP DESCOMENTAR
-    //await MEmpty.populateFromJsonImport();
+    await MEmpty.populateFromJsonImport();
   }
 
   static Future<int> maxId() async {

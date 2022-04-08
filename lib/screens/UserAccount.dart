@@ -124,6 +124,8 @@ class _UserAccountState extends State<UserAccount> {
   bool isLoading = false;
   bool isBackingup = false;
   bool isRestoring = false;
+   Function  actualizarEstado;
+
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   Map<String, String> translations = Map<String, String>();
@@ -152,6 +154,11 @@ class _UserAccountState extends State<UserAccount> {
 
   @override
   void initState() {
+    actualizarEstado= (String sms){
+      setState(() {
+        status= sms ;
+      });
+    };
     L.item('Columns').then((str) {
       setState(() {
         _strColumns = str;
@@ -163,6 +170,7 @@ class _UserAccountState extends State<UserAccount> {
     //     _strRows = str;
     //   });
     // });
+
 
     L.item('long press instructions').then((str) {
       setState(() {
@@ -853,8 +861,9 @@ class _UserAccountState extends State<UserAccount> {
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: MaterialButton(
+
                 color: Theme.of(context).primaryColor,
-                onPressed: () async {
+                onPressed:isBackingup  ?null:  () async {
                   await backupDevice();
                 },
                 child: Text(strStart),
@@ -881,11 +890,14 @@ class _UserAccountState extends State<UserAccount> {
             value: int.parse(v["folderIdInDevice"].toString()),
           ),
         );
+
       }
     }
+
     if(items.isNotEmpty&& selectedFolderToRestore==-1){
-      selectedFolderToRestore=  items.first.value;
+      selectedFolderToRestore=items.first.value;
     }
+
 
 
     List<DropdownMenuItem<int>> localItems = <DropdownMenuItem<int>>[];
@@ -950,7 +962,7 @@ class _UserAccountState extends State<UserAccount> {
               padding: const EdgeInsets.only(bottom: 8),
               child: MaterialButton(
                 color: Theme.of(context).primaryColor,
-                onPressed: () async {
+                onPressed:isRestoring? null: () async {
                   await restoreDevice();
                 },
                 child: Text(translations['choose folder to restore']),
@@ -1016,8 +1028,21 @@ class _UserAccountState extends State<UserAccount> {
                       children: [
                         MaterialButton(
                           color: Theme.of(context).primaryColor,
-                          onPressed: () async {
-                            HelperBackUp.reestore(userEmailNameToRestore, selectedFolderToRestore, selectedLocalFolder);
+                          onPressed:isRestoring?null : () async {
+                            setState(() {
+                              isRestoring= true ;
+                            });
+                            try{
+                              await  HelperBackUp.reestore(userEmailNameToRestore, selectedFolderToRestore, selectedLocalFolder,actualizarEstado);
+                            }catch(e){
+                              setState(() {
+                                status= "Error in reestore";
+                              });
+                            }
+
+                            setState(() {
+                              isRestoring= false ;
+                            });
                           //  await replaceFolder(userEmailNameToRestore, selectedFolderToRestore, selectedLocalFolder);
                           },
                           child: Text(translations['replace folder']),
@@ -1485,14 +1510,21 @@ class _UserAccountState extends State<UserAccount> {
       );
       return;
     }
-   await HelperBackUp.backup(userEmail, userName);
-    bool hasErrors = false;
-/*
     setState(() {
       isBackingup = true;
+
+    });
+    actualizarEstado("Backup started");
+
+   await HelperBackUp.backup(userEmail, userName,actualizarEstado);
+    bool hasErrors = false;
+
+    setState(() {
+      isBackingup = false;
+      status = 'Backup completed successfully';
     });
 
-
+/*
     WebResponse webResponse;
 
     setState(() {
@@ -1747,12 +1779,9 @@ class _UserAccountState extends State<UserAccount> {
       });
     }
     //await new Future.delayed(const Duration(seconds: 5));
-
-    setState(() {
-      isBackingup = false;
-      status = "";
-    });
 */
+
+
     if (!hasErrors) {
       showSnackbar(translations['operation completed successfully'],
           Duration(milliseconds: 900));
@@ -1818,7 +1847,9 @@ class _UserAccountState extends State<UserAccount> {
     } else {
       dynamic folderRemoto= await  HelperWebService(userEmailNameToRestore, userName).listRemoteFolders();
       setState(() {
+        selectedFolderToRestore=null;
         folderList = folderRemoto;
+
 
       });
     }

@@ -1,5 +1,6 @@
 /// Translation.dart
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:lucas/helpers/LocalPreferences.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -323,7 +324,7 @@ class Translation {
     // }
     //TODO FP DESCOMENTAR
 
-   //await Translation.populateFromJsonImport();
+   await Translation.populateFromJsonImport();
   }
 
   static Future<void> populateFromJsonImport() async {
@@ -372,12 +373,9 @@ class Translation {
   }
 
   static Future<int> maxId() async {
-    final db = await DBProvider.db.database;
+    int i = UniqueKey().hashCode;
 
-    var table = await db.rawQuery("SELECT MAX(id)+1 as id FROM $TableName");
-    int maxId = await table.first["id"] ?? 1;
-
-    return maxId;
+    return i ;
   }
 
   Map toJson() {

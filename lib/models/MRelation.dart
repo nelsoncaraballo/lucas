@@ -812,7 +812,7 @@ class MRelation {
     await MRelation.deleteAll();
     // await MRelation.populateFromJson(false);
     //TODO FP DESCOMENTAR
-   //await MRelation.populateFromJsonImport();
+   await MRelation.populateFromJsonImport();
   }
 
   static Future<int> maxId() async {

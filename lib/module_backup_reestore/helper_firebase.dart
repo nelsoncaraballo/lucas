@@ -51,10 +51,10 @@ class HelperFirebase{
   }
   Future<void> eliminarArchivosPorUsuario()async{
 
-    HelperToast.showToast("eliminando archivos de $userEmail");
+    HelperToast.showToast("Delete files of $userEmail");
     await eliminarArchivos(capetaFolders);
     await eliminarArchivos(carpetaImagenes);
-    HelperToast.showToast("eliminado correctamente");
+    HelperToast.showToast("deletion completed");
   }
 
 

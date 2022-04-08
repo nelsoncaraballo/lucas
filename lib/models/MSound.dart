@@ -612,7 +612,7 @@ class MSound extends MObject {
 
     //await MSound.populateFromJson(false);
     //TODO FP DESCOMENTAR
-    //await MSound.populateFromJsonImport();
+    await MSound.populateFromJsonImport();
   }
 
   static Future<int> maxId() async {

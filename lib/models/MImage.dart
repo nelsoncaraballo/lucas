@@ -545,7 +545,7 @@ class MImage extends MObject {
 
     //await MImage.populateFromJson(false);
     // TODO FP DESCOMENTAR
-    //await MImage.populateFromJsonImport();
+    await MImage.populateFromJsonImport();
   }
 
   static Future<int> maxId() async {

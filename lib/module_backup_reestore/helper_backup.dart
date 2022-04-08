@@ -9,7 +9,7 @@ import 'helper_web_service.dart';
 class HelperBackUp{
 
 
- static Future<Void> backup(String userEmail, String userName)async{
+ static Future<Void> backup(String userEmail, String userName,  Function actualizarEstado)async{
    HelperWebService webService= HelperWebService(userEmail, userName);
    // este metodo hay pasarlo al metodo que hace el backup total por ahora esta aca
 
@@ -17,24 +17,28 @@ class HelperBackUp{
    // este metodo hay pasarlo al metodo que hace el backup total por ahora esta aca
    await firebase.eliminarArchivosPorUsuario();
 
-    await webService.backUpTraslations();
-    HelperToast.showToast("traducciones completadas");
-    await webService.backUpRelation();
-    HelperToast.showToast("Relations completados");
+    await webService.backUpTraslations(actualizarEstado);
+    actualizarEstado("completed translations");
+    HelperToast.showToast("completed translations");
+    await webService.backUpRelation(actualizarEstado);
+    HelperToast.showToast("Relations completed");
+    actualizarEstado("Relations completed");
 
-    await webService.backUpFolders(firebase);
-    HelperToast.showToast("folderes completados");
+    await webService.backUpFolders(firebase,actualizarEstado);
+    HelperToast.showToast("folders completed");
+    actualizarEstado("folders completed");
     firebase.tipo=HelperFirebase.carpetaImagenes;
-    await webService.backUpImages(firebase);
-    HelperToast.showToast("imagenes completados");
+    await webService.backUpImages(firebase,actualizarEstado);
+    HelperToast.showToast("images completed");
+   actualizarEstado("Images completed");
 
-    HelperToast.showToast("Termino la subida de Images");
+   // HelperToast.showToast("Termino la subida de Images");
   }
 
-  static void reestore(String userEmailNameToRestore, int selectedFolderToRestore, int selectedLocalFolder){
+  static Future<void> reestore(String userEmailNameToRestore, int selectedFolderToRestore, int selectedLocalFolder, Function actualizarEstado) async {
   HelperWebService webService=HelperWebService(userEmailNameToRestore, "");
 
-  webService.replaceFolder(userEmailNameToRestore, selectedFolderToRestore, selectedLocalFolder);
+  await webService.replaceFolder(userEmailNameToRestore, selectedFolderToRestore, selectedLocalFolder,actualizarEstado);
   }
 
 

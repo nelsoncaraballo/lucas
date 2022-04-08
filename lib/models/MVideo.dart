@@ -606,7 +606,7 @@ class MVideo extends MObject {
 
     //await MVideo.populateFromJson(false);
     //TODO FP DESCOMENTAR
-   // await MVideo.populateFromJsonImport();
+    await MVideo.populateFromJsonImport();
   }
 
   static Future<int> maxId() async {

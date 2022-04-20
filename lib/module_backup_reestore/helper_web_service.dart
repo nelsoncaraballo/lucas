@@ -418,8 +418,9 @@ List<MRelation> relationsTemporal  = [];
       minLevelToShow: folder.minLevelToShow,
     );*/
 
+    if(nFolder.useAsset==0){
 
-    HelperFirebase helperFirebase = HelperFirebase(userEmail, userName, HelperFirebase.capetaFolders);
+     HelperFirebase helperFirebase = HelperFirebase(userEmail, userName, HelperFirebase.capetaFolders);
     File file =  await helperFirebase.DowloadFile(nFolder,nFolder.fileName);
     if(file != null){
       nFolder.fileName=file.path;
@@ -430,6 +431,8 @@ List<MRelation> relationsTemporal  = [];
 
     }else{
       nFolder.fileName="assets/Images/folders_folder.png";
+    }
+
     }
 
 

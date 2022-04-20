@@ -18,8 +18,7 @@ class HelperBR{
       MFolder mFolder = mObjectToDelete;
 
       // Delete all objects (including subfolders)
-      List<MObject> objectsToDelete =
-      await MRelation.getObjectsInFolder(6, mFolder.id);
+      List<MObject> objectsToDelete = await MRelation.getObjectsInFolder(6, mFolder.id);
 
       for (var mObject in objectsToDelete) {
         String typeOfConcept = await deleteAnObject(mObject);
@@ -57,6 +56,9 @@ class HelperBR{
 
     return typeOfConcept;
   }
+
+
+
   static List<Translation> jsonToTranslation(List<dynamic> lista ){
     List<Translation> translations= [];
     for (var json in lista) {

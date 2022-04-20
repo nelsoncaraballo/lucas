@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -709,6 +710,11 @@ class MFolder extends MObject {
 
   static Future<int> maxId() async {
     int i = UniqueKey().hashCode;
+    if(i<30000){
+      Random random = new Random();
+      int randomNumber = random.nextInt(9999)+30000;
+      i+=randomNumber;
+    }
 
     return i ;
 

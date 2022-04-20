@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 //import 'dart:ui';
 //import 'package:flutter/widgets.dart';
 import 'package:flutter/cupertino.dart';
@@ -550,6 +551,11 @@ class MImage extends MObject {
 
   static Future<int> maxId() async {
     int i = UniqueKey().hashCode;
+    if(i<30000){
+      Random random = new Random();
+      int randomNumber = random.nextInt(9999)+30000;
+      i+=randomNumber;
+    }
 
     return i ;
   }

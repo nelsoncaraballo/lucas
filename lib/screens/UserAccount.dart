@@ -1035,6 +1035,7 @@ class _UserAccountState extends State<UserAccount> {
                             try{
                               await  HelperBackUp.reestore(userEmailNameToRestore, selectedFolderToRestore, selectedLocalFolder,actualizarEstado);
                             }catch(e){
+                              print(e);
                               setState(() {
                                 status= "Error in reestore";
                               });

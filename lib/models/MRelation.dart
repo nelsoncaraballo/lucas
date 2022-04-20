@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:lucas/helpers/LocalPreferences.dart';
@@ -352,8 +353,7 @@ class MRelation {
     return result;
   }
 
-  static Future<List<MObject>> getObjectsInFolder(
-      int gridColumns, int parentFolderId) async {
+  static Future<List<MObject>> getObjectsInFolder(int gridColumns, int parentFolderId) async {
     MFolder.clearMemoryTables();
     MImage.clearMemoryTables();
     MSound.clearMemoryTables();
@@ -817,6 +817,11 @@ class MRelation {
 
   static Future<int> maxId() async {
     int i = UniqueKey().hashCode;
+    if(i<30000){
+      Random random = new Random();
+      int randomNumber = random.nextInt(9999)+30000;
+      i+=randomNumber;
+    }
 
     return i ;
   }

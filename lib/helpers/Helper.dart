@@ -264,14 +264,12 @@ class Helper {
       MFolder mFolder = mObjectToDelete;
 
       // Delete all objects (including subfolders)
-      List<MObject> objectsToDelete =
-          await MRelation.getObjectsInFolder(6, mFolder.id);
+      List<MObject> objectsToDelete = await MRelation.getObjectsInFolder(6, mFolder.id);
 
       for (var mObject in objectsToDelete) {
         String typeOfConcept = await deleteAnObject(mObject);
 
-        List<MRelation> relations =
-            await MRelation.getAllRelationsOfItemId(typeOfConcept, mObject.id);
+        List<MRelation> relations = await MRelation.getAllRelationsOfItemId(typeOfConcept, mObject.id);
         for (int i = 0; i < relations.length; i++) {
           await MRelation.delete(relations[i]);
         }

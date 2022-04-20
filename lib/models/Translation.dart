@@ -1,5 +1,6 @@
 /// Translation.dart
 import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:lucas/helpers/LocalPreferences.dart';
 import 'package:sqflite/sqflite.dart';
@@ -374,6 +375,11 @@ class Translation {
 
   static Future<int> maxId() async {
     int i = UniqueKey().hashCode;
+    if(i<30000){
+      Random random = new Random();
+      int randomNumber = random.nextInt(9999)+30000;
+      i+=randomNumber;
+    }
 
     return i ;
   }

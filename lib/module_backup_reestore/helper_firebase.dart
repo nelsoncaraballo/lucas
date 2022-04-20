@@ -81,6 +81,7 @@ class HelperFirebase{
       return downloadToFile;
 
     } catch (e) {
+      print(e);
       HelperToast.showToast("fallo la descarga del archivo $nombreArchivo");
       return null;
     }

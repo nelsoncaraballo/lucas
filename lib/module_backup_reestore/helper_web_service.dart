@@ -366,26 +366,32 @@ List<MRelation> relationsTemporal  = [];
 // esto
 
    Future<void> addRemoteImage(MImage image, List<Translation> remoteObjectTranslations, List<MRelation> remoteRelations, MFolder parentFolder) async {
-    MImage mImage = MImage(
-      id: image.id,
-      fileName: image.fileName,
-      isVisible: image.isVisible,
-      isUnderstood: image.isUnderstood,
-      useAsset: image.useAsset,
-      localFileName: image.localFileName,
-      userCreated: image.userCreated,
-      isAvailable: image.isAvailable,
-      backgroundColor:image.backgroundColor,
-      minLevelToShow: image.minLevelToShow,
-    );
-    HelperFirebase helperFirebase = HelperFirebase(userEmail, userName, HelperFirebase.carpetaImagenes);
-    File file=  await helperFirebase.DowloadFile(mImage, mImage.fileName);
-    if(file != null){
-      mImage.fileName=file.path;
-      String nombreArchivo="${file.path.split('/').last}";
-      mImage.localFileName= nombreArchivo;
-      mImage.userCreated=1;
-      mImage.useAsset=0;
+     MImage mImage = MImage(
+       id: image.id,
+       fileName: image.fileName,
+       isVisible: image.isVisible,
+       isUnderstood: image.isUnderstood,
+       useAsset: image.useAsset,
+       localFileName: image.localFileName,
+       userCreated: image.userCreated,
+       isAvailable: image.isAvailable,
+       backgroundColor: image.backgroundColor,
+       minLevelToShow: image.minLevelToShow,
+     );
+
+    if(mImage.useAsset==0) {
+      HelperFirebase helperFirebase = HelperFirebase(
+          userEmail, userName, HelperFirebase.carpetaImagenes);
+      File file = await helperFirebase.DowloadFile(mImage, mImage.fileName);
+      if (file != null) {
+        mImage.fileName = file.path;
+        String nombreArchivo = "${file.path
+            .split('/')
+            .last}";
+        mImage.localFileName = nombreArchivo;
+        mImage.userCreated = 1;
+        mImage.useAsset = 0;
+      }
     }
 
     await MImage.createWithID(mImage);

@@ -2306,34 +2306,7 @@ class _EditObjectState extends State<EditObject> {
   // }
 
   Future<void> confirmDelete() async {
-    if (mObject is MFolder) {
-      MFolder mFolder = mObject;
 
-      final lucasState =
-          PropertyChangeProvider.of<LucasState>(context, listen: false).value;
-      int gridColumns = lucasState.getGridColumns();
-
-      List<MRelation> relations =
-          await MRelation.getInFolder(gridColumns, mFolder.id);
-      if (relations.length > 0) {
-        if (mounted) {
-          final snackBar = SnackBar(
-            backgroundColor: Colors.red,
-            content: Text(
-              translations['folder not empty will not delete'],
-              style: TextStyle(color: Colors.white),
-            ),
-          );
-
-          if (_scaffoldKey.currentState != null) {
-            ScaffoldMessenger.of(context).showSnackBar(snackBar);
-            //_scaffoldKey.currentState.showSnackBar(snackBar);
-          }
-        }
-
-        return;
-      }
-    }
 
     Color getBackgroundColor(Set<MaterialState> states) {
       const Set<MaterialState> interactiveStates = <MaterialState>{
@@ -2438,41 +2411,28 @@ class _EditObjectState extends State<EditObject> {
                 }
                 */
 
-                MRelation relation =
-                    await MRelation.getByID(mObject.relationId);
+                MRelation relation =await MRelation.getByID(mObject.relationId);
 
-                List<MRelation> relations =
-                    await MRelation.getAllRelationsOfItemId(
-                        typeOfConcept, mObject.id);
+                List<MRelation> relations = await MRelation.getAllRelationsOfItemId(typeOfConcept, mObject.id);
                 for (int i = 0; i < relations.length; i++) {
                   await MRelation.delete(relations[i]);
                 }
 
-                final lucasState = PropertyChangeProvider.of<LucasState>(
-                        context,
-                        listen: false)
-                    .value;
+                final lucasState = PropertyChangeProvider.of<LucasState>(context, listen: false).value;
 
                 // update environment
                 if (relations.length == 1) {
                   relation = relations.first;
                 }
-                MFolder parentFolder =
-                    await MFolder.getByID(relation.parentFolderId);
+                MFolder parentFolder = await MFolder.getByID(relation.parentFolderId);
                 await refreshFolder(parentFolder);
-                await lucasState.saveObject(
-                    StateProperties.currentFolder, parentFolder);
-                await lucasState.saveObject(
-                    StateProperties.selectedFolder, parentFolder);
+                await lucasState.saveObject(StateProperties.currentFolder, parentFolder);
+                await lucasState.saveObject(StateProperties.selectedFolder, parentFolder);
 
-                await lucasState.saveObject(
-                    StateProperties.selectedImage, null);
-                await lucasState.saveObject(
-                    StateProperties.selectedVideo, null);
-                await lucasState.saveObject(
-                    StateProperties.selectedSound, null);
-                await lucasState.saveObject(
-                    StateProperties.selectedEmpty, null);
+                await lucasState.saveObject(StateProperties.selectedImage, null);
+                await lucasState.saveObject(StateProperties.selectedVideo, null);
+                await lucasState.saveObject(StateProperties.selectedSound, null);
+                await lucasState.saveObject(StateProperties.selectedEmpty, null);
 
                 if (onRefreshParentWidget != null) {
                   onRefreshParentWidget(null);

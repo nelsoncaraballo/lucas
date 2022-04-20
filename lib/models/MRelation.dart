@@ -472,9 +472,80 @@ class MRelation {
 
     return result;
   }
+  static Future<List<MObject>> getObjectsInFolderBD( int parentFolderId) async {
 
-  static Future<List<MRelation>> getAllRelationsOfItemId(
-      String typeOfConcept, int itemId) async {
+    List<MObject> objets = <MObject>[];
+
+    final db = await DBProvider.db.database;
+    String sql = 'SELECT $TableName.* '
+        'FROM $TableName '
+        'WHERE parentFolderId = $parentFolderId '
+        'ORDER BY visibleIndex';
+     var result = await db.rawQuery(sql);
+    List<MRelation> relations = result.isNotEmpty ? result.toList().map((c) => MRelation.fromMap(c)).toList() : <MRelation>[];
+
+
+    for (int i = 0; i < relations.length; i++) {
+      MRelation mRelation = relations[i];
+
+      if (mRelation.cardType == 'empty') {
+        MEmpty mEmpty = await MEmpty.getByID(mRelation.cardEmptyId);
+        if (mEmpty != null) {
+          mEmpty.relationId = mRelation.id;
+          mEmpty.visibleIndex = mRelation.visibleIndex;
+          objets.add(mEmpty);
+        }
+      }
+
+      if (mRelation.cardType == 'image') {
+        //MImage.clearMemoryTables();
+        //MImage mImage = MImage.inMemoryDictionary[mRelation.cardImageId];
+        MImage mImage = await MImage.getByID(mRelation.cardImageId);
+        if (mImage != null) {
+          mImage.relationId = mRelation.id;
+          mImage.visibleIndex = mRelation.visibleIndex;
+          objets.add(mImage);
+        }
+      }
+
+      if (mRelation.cardType == 'folder') {
+        MFolder mFolder = await MFolder.getByID(mRelation.cardFolderId);
+        if (mFolder != null) {
+          if (mFolder.id != -1) {
+            mFolder.relationId = mRelation.id;
+            mFolder.visibleIndex = mRelation.visibleIndex;
+            objets.add(mFolder);
+          }
+        }
+      }
+
+      if (mRelation.cardType == 'video') {
+        MVideo mVideo = await MVideo.getByID(mRelation.cardVideoId);
+        if (mVideo != null) {
+          if (mVideo.id != -1) {
+            mVideo.relationId = mRelation.id;
+            mVideo.visibleIndex = mRelation.visibleIndex;
+            objets.add(mVideo);
+          }
+        }
+      }
+
+      if (mRelation.cardType == 'sound') {
+        MSound mSound = await MSound.getByID(mRelation.cardSoundId);
+        if (mSound != null) {
+          if (mSound.id != -1) {
+            mSound.relationId = mRelation.id;
+            mSound.visibleIndex = mRelation.visibleIndex;
+            objets.add(mSound);
+          }
+        }
+      }
+    }
+
+    return objets;
+  }
+
+  static Future<List<MRelation>> getAllRelationsOfItemId(String typeOfConcept, int itemId) async {
     final db = await DBProvider.db.database;
     String sql = 'SELECT $TableName.* '
         'FROM $TableName '

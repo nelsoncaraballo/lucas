@@ -3,44 +3,58 @@
 
 
 
+import '../helpers/Helper.dart';
+import '../models/MEmpty.dart';
 import '../models/MFolder.dart';
 import '../models/MImage.dart';
 import '../models/MObject.dart';
 import '../models/MRelation.dart';
+import '../models/MSound.dart';
+import '../models/MVideo.dart';
 import '../models/Translation.dart';
 import '../module_backup_reestore/helper_file.dart';
 
 class HelperBR{
   static Future<String> deleteAnObject(MObject mObjectToDelete) async {
     String typeOfConcept = '';
+
+
     if (mObjectToDelete is MFolder) {
       typeOfConcept = 'folder';
       MFolder mFolder = mObjectToDelete;
 
       // Delete all objects (including subfolders)
-      List<MObject> objectsToDelete = await MRelation.getObjectsInFolder(6, mFolder.id);
+      List<MObject> objectsToDelete = await MRelation.getObjectsInFolderBD(mObjectToDelete.id);
 
       for (var mObject in objectsToDelete) {
         String typeOfConcept = await deleteAnObject(mObject);
 
-        List<MRelation> relations =
-        await MRelation.getAllRelationsOfItemId(typeOfConcept, mObject.id);
+        List<MRelation> relations = await MRelation.getAllRelationsOfItemId(typeOfConcept, mObject.id);
+
         for (int i = 0; i < relations.length; i++) {
           await MRelation.delete(relations[i]);
         }
+
       }
 
       await MFolder.delete(mFolder);
 
       await Translation.deleteForObject("folders", mObjectToDelete.id);
     }
+
+    if (mObjectToDelete is MEmpty) {
+      typeOfConcept = 'empty';
+      MEmpty mEmpty = mObjectToDelete;
+      await MEmpty.delete(mEmpty);
+    }
+
     if (mObjectToDelete is MImage) {
       typeOfConcept = 'image';
       MImage mImage = mObjectToDelete;
       await MImage.delete(mImage);
 
       if (mImage.useAsset == 0) {
-        await HelPerFile.deleteLocalFile(mImage);
+        await Helper.deleteLocalFile(mImage.localFileName);
       }
 
       // List<MRelation> relations = await MRelation.getAllRelationsOfItemId(
@@ -49,10 +63,32 @@ class HelperBR{
       //   await MRelation.delete(relations[i]);
       // }
 
-      await Translation.deleteForObject("Images", mObjectToDelete.id);
+      await Translation.deleteForObject("images", mObjectToDelete.id);
     }
 
+    if (mObjectToDelete is MVideo) {
+      typeOfConcept = 'video';
+      MVideo mVideo = mObjectToDelete;
+      await MVideo.delete(mVideo);
 
+      if (mVideo.useAsset == 0) {
+        await Helper.deleteLocalFile(mVideo.localFileName);
+      }
+
+      await Translation.deleteForObject("videos", mObjectToDelete.id);
+    }
+
+    if (mObjectToDelete is MSound) {
+      typeOfConcept = 'sound';
+      MSound mSound = mObjectToDelete;
+      await MSound.delete(mSound);
+
+      if (mSound.useAsset == 0) {
+        await Helper.deleteLocalFile(mSound.localFileName);
+      }
+
+      await Translation.deleteForObject("sounds", mObjectToDelete.id);
+    }
 
     return typeOfConcept;
   }
